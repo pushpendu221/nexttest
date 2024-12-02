@@ -1,13 +1,28 @@
-import Submit from "@/components/submit";
+import ContactForm from "@/components/contact-form";
 import { storePost } from "../lib/dbcall";
 import { redirect } from "next/navigation";
-
 export default function ContactPage() {
-  async function createPost(formData) {
+  async function createPost(preval, formData) {
     "use server";
     const title = formData.get("title");
     const image = formData.get("image");
     const content = formData.get("content");
+
+    let error = [];
+
+    if (!title || title.trim().length === 0) {
+      error.push("Please enter a valid Title");
+    }
+    if (!content || content.trim().length === 0) {
+      error.push("Please enter a valid content");
+    }
+    if (!image || image.size === 0) {
+      error.push("Please enter Image");
+    }
+
+    if (error.length > 0) {
+      return error;
+    }
 
     storePost({
       imageUrl: "",
@@ -19,31 +34,5 @@ export default function ContactPage() {
     redirect("/users");
   }
 
-  return (
-    <>
-      <h1>Create a new post</h1>
-      <form action={createPost}>
-        <p className="form-control">
-          <label htmlFor="title">Title</label>
-          <input type="text" id="title" name="title" />
-        </p>
-        <p className="form-control">
-          <label htmlFor="image">Image URL</label>
-          <input
-            type="file"
-            accept="image/png, image/jpeg"
-            id="image"
-            name="image"
-          />
-        </p>
-        <p className="form-control">
-          <label htmlFor="content">Content</label>
-          <textarea id="content" name="content" rows="5" />
-        </p>
-        <p className="form-actions">
-          <Submit />
-        </p>
-      </form>
-    </>
-  );
+  return <ContactForm action={createPost} />;
 }
